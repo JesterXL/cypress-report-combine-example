@@ -1,44 +1,33 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Cypress Report Combine Example
 
-## Available Scripts
+The end to end test tool [Cypress.io](https://www.cypress.io/) is life changing in a positive way.
 
-In the project directory, you can run:
+## Problem: Each File Generates a New Report
 
-### `npm start`
+... however, if you create multiple tests, it runs them in isolation for concurrency reasons. This means if you create reports, you'll get a new report generated from [Mocha](https://mochajs.org/) for each cypress spec file that runs. In something like [Protractor](https://www.protractortest.org/#/), you can simply have [Jasmine](https://jasmine.github.io/) generate a combined report from multiple spec files via a configuration of `resultJsonOutputFile: 'report.json'`.
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Solution
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+I whipped up some quick code in this repo to generate a unique report for each file, then combine them once complete. While not a library you can install, the code should be helpful to guide you, or even re-use, in any endeavor you have to combine multiple reports.
 
-### `npm test`
+## Use Case
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+At my job, part of our end to end tests are supposed to generate a report indicating which feature tests passed, how long they took, and put these into a single JSON file for audit record keeping. For our Selenium tests in Protractor, you just do that config I mentioned above, and you're done.
 
-### `npm run build`
+In Cypress, I didn't know that each test had it's own report. That won't do as all the tests are testing the same app, and we need those reports combined. Mocha or Cypress don't appear to expose a "the entire suite is done" type of [event](https://github.com/mochajs/mocha/wiki/Third-party-reporters).
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+So, I have each test output a uniquely named report, then read all of those, combine them, generate a single report, then delete the interim ones.
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+# How To Run?
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+To test yourself, download the code, `cd` to the directory and:
 
-### `npm run eject`
+1. run `yarn install`
+2. run `npm run start` (this'll launch Create React App site, it takes a few seconds)
+3. in a separate terminal, run `npm run cypress-headless` (this'll run Cypress in headless mode which will hit your local React website)
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+You should see a reports folder be created, and in there you'll see the combined report. If you look fast enough, you'll even see the interim reports be created before they're deleted.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Where's the Goods?
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+Check out the `reporters` folder in the source. The `json-reporter.js` is your standard Mocha reporter. However, the `combine-reports.js` is where we write individual files, then combine them.
