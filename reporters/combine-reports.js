@@ -239,7 +239,7 @@ if (require.main === module) {
     .then( _ => {
         console.log("Unit test reports combined and interim reports deleted successfully!")
     })
-    .then( error => {
+    .catch( error => {
         console.log("Failed to combine unit test reports:", error)
     })
 }
